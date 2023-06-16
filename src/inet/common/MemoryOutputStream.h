@@ -54,6 +54,8 @@ class INET_API MemoryOutputStream
         data.reserve((b(initialCapacity).get() + 7) >> 3);
     }
 
+    void clear() { data.clear(); length = b(0); }
+
     /** @name Stream querying functions */
     //@{
     /**
@@ -61,7 +63,27 @@ class INET_API MemoryOutputStream
      */
     b getLength() const { return length; }
 
+    void setCapacity(b capacity) {
+        data.reserve((b(capacity).get() + 7) >> 3);
+    }
+
     const std::vector<uint8_t>& getData() const { return data; }
+
+    void writeData(const std::vector<uint8_t>& src, b srcOffset, b srcLength) {
+        assert(srcOffset + srcLength <= B(src.size()));
+        size_t srcPosInBits = b(srcOffset).get();
+        size_t srcEndPosInBits = b(srcOffset + srcLength).get();
+
+        for ( ; srcPosInBits < srcEndPosInBits && ((srcPosInBits & 7) != 0); srcPosInBits++)
+            writeBit(src.at(srcPosInBits >> 3) & (1 << (7 - (srcPosInBits & 7))));
+        size_t remainedBytes = (srcEndPosInBits - srcPosInBits) >> 3;
+        if (remainedBytes != 0) {
+            writeBytes(&src.at(srcPosInBits >> 3), B(remainedBytes));
+            srcPosInBits += remainedBytes << 3;
+        }
+        for ( ; srcPosInBits < srcEndPosInBits; srcPosInBits++)
+            writeBit(src.at(srcPosInBits >> 3) & (1 << (7 - (srcPosInBits & 7))));
+    }
 
     void copyData(std::vector<bool>& result, b offset = b(0), b length = b(-1)) const {
         size_t end = b(length == b(-1) ? this->length : offset + length).get();
