@@ -146,6 +146,7 @@ class INET_API MemoryOutputStream
      * bit order.
      */
     void writeBits(const std::vector<bool>& bits, b offset = b(0), b length = b(-1)) {
+        // TODO optimize
         auto end = length == b(-1) ? bits.size() : b(offset + length).get();
         for (size_t i = b(offset).get(); i < end; i++)
             writeBit(bits.at(i));
