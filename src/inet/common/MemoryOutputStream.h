@@ -273,8 +273,14 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint16Be(uint16_t value) {
-        writeByte(static_cast<uint8_t>(value >> 8));
-        writeByte(static_cast<uint8_t>(value >> 0));
+        uint8_t bitOffset = b(length).get() & 7;
+        if (bitOffset > 0) {
+            data.back() |= static_cast<uint8_t>(value >> (8 + bitOffset));
+            value <<= (8 - bitOffset);
+        }
+        data.push_back(static_cast<uint8_t>(value >> 8));
+        data.push_back(static_cast<uint8_t>(value));
+        length += B(2);
     }
 
     /**
@@ -291,9 +297,16 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint24Be(uint32_t value) {
-        writeByte(static_cast<uint8_t>(value >> 16));
-        writeByte(static_cast<uint8_t>(value >> 8));
-        writeByte(static_cast<uint8_t>(value >> 0));
+        assert(value <= 0x00fffffflu);
+        uint8_t bitOffset = b(length).get() & 7;
+        if (bitOffset > 0) {
+            data.back() |= static_cast<uint8_t>(value >> (16 + bitOffset));
+            value <<= (8 - bitOffset);
+        }
+        data.push_back(static_cast<uint8_t>(value >> 16));
+        data.push_back(static_cast<uint8_t>(value >> 8));
+        data.push_back(static_cast<uint8_t>(value));
+        length += B(3);
     }
 
     /**
@@ -311,10 +324,16 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint32Be(uint32_t value) {
-        writeByte(static_cast<uint8_t>(value >> 24));
-        writeByte(static_cast<uint8_t>(value >> 16));
-        writeByte(static_cast<uint8_t>(value >> 8));
-        writeByte(static_cast<uint8_t>(value >> 0));
+        uint8_t bitOffset = b(length).get() & 7;
+        if (bitOffset > 0) {
+            data.back() |= static_cast<uint8_t>(value >> (24 + bitOffset));
+            value <<= (8 - bitOffset);
+        }
+        data.push_back(static_cast<uint8_t>(value >> 24));
+        data.push_back(static_cast<uint8_t>(value >> 16));
+        data.push_back(static_cast<uint8_t>(value >> 8));
+        data.push_back(static_cast<uint8_t>(value));
+        length += B(4);
     }
 
     /**
@@ -333,12 +352,19 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint48Be(uint64_t value) {
-        writeByte(static_cast<uint8_t>(value >> 40));
-        writeByte(static_cast<uint8_t>(value >> 32));
-        writeByte(static_cast<uint8_t>(value >> 24));
-        writeByte(static_cast<uint8_t>(value >> 16));
-        writeByte(static_cast<uint8_t>(value >> 8));
-        writeByte(static_cast<uint8_t>(value >> 0));
+        assert(value <= ((uint64_t)1u << 48));
+        uint8_t bitOffset = b(length).get() & 7;
+        if (bitOffset > 0) {
+            data.back() |= static_cast<uint8_t>(value >> (40 + bitOffset));
+            value <<= (8 - bitOffset);
+        }
+        data.push_back(static_cast<uint8_t>(value >> 40));
+        data.push_back(static_cast<uint8_t>(value >> 32));
+        data.push_back(static_cast<uint8_t>(value >> 24));
+        data.push_back(static_cast<uint8_t>(value >> 16));
+        data.push_back(static_cast<uint8_t>(value >> 8));
+        data.push_back(static_cast<uint8_t>(value));
+        length += B(6);
     }
 
     /**
@@ -359,14 +385,20 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint64Be(uint64_t value) {
-        writeByte(static_cast<uint8_t>(value >> 56));
-        writeByte(static_cast<uint8_t>(value >> 48));
-        writeByte(static_cast<uint8_t>(value >> 40));
-        writeByte(static_cast<uint8_t>(value >> 32));
-        writeByte(static_cast<uint8_t>(value >> 24));
-        writeByte(static_cast<uint8_t>(value >> 16));
-        writeByte(static_cast<uint8_t>(value >> 8));
-        writeByte(static_cast<uint8_t>(value >> 0));
+        uint8_t bitOffset = b(length).get() & 7;
+        if (bitOffset > 0) {
+            data.back() |= static_cast<uint8_t>(value >> (56 + bitOffset));
+            value <<= (8 - bitOffset);
+        }
+        data.push_back(static_cast<uint8_t>(value >> 56));
+        data.push_back(static_cast<uint8_t>(value >> 48));
+        data.push_back(static_cast<uint8_t>(value >> 40));
+        data.push_back(static_cast<uint8_t>(value >> 32));
+        data.push_back(static_cast<uint8_t>(value >> 24));
+        data.push_back(static_cast<uint8_t>(value >> 16));
+        data.push_back(static_cast<uint8_t>(value >> 8));
+        data.push_back(static_cast<uint8_t>(value));
+        length += B(8);
     }
 
     /**
