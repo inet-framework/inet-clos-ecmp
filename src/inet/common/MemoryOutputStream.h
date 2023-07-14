@@ -426,8 +426,7 @@ class INET_API MemoryOutputStream
      * and MSB to LSB bit order.
      */
     void writeMacAddress(MacAddress address) {
-        for (int i = 0; i < MAC_ADDRESS_SIZE; i++)
-            writeByte(address.getAddressByte(i));
+        writeUint48Be(address.getInt());
     }
 
     /**
