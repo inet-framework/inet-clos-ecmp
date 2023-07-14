@@ -314,6 +314,7 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint24Le(uint32_t value) {
+        assert(value <= 0x00fffffflu);
         writeByte(static_cast<uint8_t>(value >> 0));
         writeByte(static_cast<uint8_t>(value >> 8));
         writeByte(static_cast<uint8_t>(value >> 16));
@@ -372,6 +373,7 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint48Le(uint64_t value) {
+        assert(value <= ((uint64_t)1u << 48));
         writeByte(static_cast<uint8_t>(value >> 0));
         writeByte(static_cast<uint8_t>(value >> 8));
         writeByte(static_cast<uint8_t>(value >> 16));
