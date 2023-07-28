@@ -62,8 +62,8 @@ class INET_API MemoryInputStream
         dataLength(length == b(-1) ? b(data.size() * 8) : length),
         position(position)
     {
-        ASSERT(b(0) <= this->dataLength);
-        ASSERT(b(0) <= position && position <= this->dataLength);
+        ASSERT(b(0) <= dataLength);
+        ASSERT(b(0) <= position && position <= dataLength);
     }
 
     MemoryInputStream(const uint8_t *buffer, b length, b position = b(0)) :
@@ -71,8 +71,8 @@ class INET_API MemoryInputStream
         dataLength(length),
         position(position)
     {
-        ASSERT(b(0) <= this->dataLength);
-        ASSERT(b(0) <= position && position <= this->dataLength);
+        ASSERT(b(0) <= dataLength);
+        ASSERT(b(0) <= position && position <= dataLength);
     }
 
     /** @name Stream querying functions */
@@ -100,7 +100,7 @@ class INET_API MemoryInputStream
     const std::vector<uint8_t>& getData() const { return data; }
 
     void copyData(std::vector<bool>& result, b offset = b(0), b length = b(-1)) const {
-        size_t end = b(length == b(-1) ? this->dataLength : offset + length).get();
+        size_t end = b(length == b(-1) ? dataLength : offset + length).get();
         for (size_t i = b(offset).get(); i < end; i++) {
             size_t byteIndex = i / 8;
             size_t bitIndex = i % 8;
@@ -219,8 +219,8 @@ class INET_API MemoryInputStream
      * the original byte order in MSB to LSB bit order.
      */
     B readBytes(std::vector<uint8_t>& bytes, B length) {
-        if (position + length > this->dataLength) {
-            length = this->dataLength - position;
+        if (position + length > dataLength) {
+            length = dataLength - position;
             isReadBeyondEnd_ = true;
         }
         auto end = position + length;
@@ -243,8 +243,8 @@ class INET_API MemoryInputStream
      * the original byte order in MSB to LSB bit order.
      */
     B readBytes(uint8_t *buffer, B length) {
-        if (position + length > this->dataLength) {
-            length = this->dataLength - position;
+        if (position + length > dataLength) {
+            length = dataLength - position;
             isReadBeyondEnd_ = true;
         }
         if (isByteAligned()) {
