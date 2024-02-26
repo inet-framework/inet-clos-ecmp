@@ -40,28 +40,28 @@ class INET_API MemoryOutputStream
     /**
      * The length of the bit stream measured in bits.
      */
-    b length;
+    b dataLength;
 
   protected:
     bool isByteAligned() const {
-        return (b(length).get() & 7) == 0;
+        return (b(dataLength).get() & 7) == 0;
     }
 
   public:
     MemoryOutputStream(b initialCapacity = B(64)) :
-        length(b(0))
+        dataLength(b(0))
     {
         data.reserve((b(initialCapacity).get() + 7) >> 3);
     }
 
-    void clear() { data.clear(); length = b(0); }
+    void clear() { data.clear(); dataLength = b(0); }
 
     /** @name Stream querying functions */
     //@{
     /**
      * Returns the length of the bit stream measured in bits.
      */
-    b getLength() const { return length; }
+    b getLength() const { return dataLength; }
 
     void setCapacity(b capacity) {
         data.reserve((b(capacity).get() + 7) >> 3);
@@ -86,7 +86,7 @@ class INET_API MemoryOutputStream
     }
 
     void copyData(std::vector<bool>& result, b offset = b(0), b length = b(-1)) const {
-        size_t end = b(length == b(-1) ? this->length : offset + length).get();
+        size_t end = b(length == b(-1) ? dataLength : offset + length).get();
         for (size_t i = b(offset).get(); i < end; i++) {
             size_t byteIndex = i / 8;
             size_t bitIndex = i % 8;
@@ -112,14 +112,14 @@ class INET_API MemoryOutputStream
      * Writes a bit to the end of the stream.
      */
     void writeBit(bool value) {
-        size_t i = b(length).get();
+        size_t i = b(dataLength).get();
         size_t byteIndex = i >> 3;
         uint8_t bitIndex = i & 7;
         if (bitIndex == 0)
             data.push_back(value ? 0x80 : 0);
         else if (value)
             data[byteIndex] |= 1 << (7 - bitIndex);
-        length += b(1);
+        dataLength += b(1);
     }
 
     /**
@@ -127,7 +127,7 @@ class INET_API MemoryOutputStream
      */
     void writeBitRepeatedly(bool value, size_t count) {
         if (count > 0) {
-            size_t i = b(length).get();
+            size_t i = b(dataLength).get();
             size_t startByteIndex = i >> 3;
             uint8_t startMask = (1 << (8 - (i & 7))) - 1;
             size_t endByteIndex = (i + count - 1) >> 3;
@@ -137,7 +137,7 @@ class INET_API MemoryOutputStream
             if (value)
                 data[startByteIndex] |= startMask;
             data[endByteIndex] &= endMask;
-            length += b(count);
+            dataLength += b(count);
         }
     }
 
@@ -159,14 +159,14 @@ class INET_API MemoryOutputStream
      * Writes a byte to the end of the stream in MSB to LSB bit order.
      */
     void writeByte(uint8_t value) {
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset == 0)
             data.push_back(value);
         else {
             data.back() |= value >> bitOffset;
             data.push_back(value << (8 - bitOffset));
         }
-        length += B(1);
+        dataLength += B(1);
     }
 
     /**
@@ -174,7 +174,7 @@ class INET_API MemoryOutputStream
      * bit order.
      */
     void writeByteRepeatedly(uint8_t value, size_t count) {
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset == 0) {
             data.insert(data.end(), count, value);
         }
@@ -184,7 +184,7 @@ class INET_API MemoryOutputStream
                 data.insert(data.end(), count-1, value >> bitOffset | value << (8 - bitOffset));
             data.push_back(value << (8 - bitOffset));
         }
-        length += B(count);
+        dataLength += B(count);
     }
 
     /**
@@ -207,7 +207,7 @@ class INET_API MemoryOutputStream
         if (length == B(0))
             return;
         ASSERT(length > B(0));
-        uint8_t bitOffset = b(this->length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset == 0) {
             data.insert(data.end(), buffer, buffer + B(length).get());
         }
@@ -218,7 +218,7 @@ class INET_API MemoryOutputStream
                 data.push_back(buffer[i] << (8 - bitOffset) | buffer[i+1] >> bitOffset);
             data.push_back(buffer[end] << (8 - bitOffset));
         }
-        this->length += length;
+        dataLength += length;
     }
     //@}
 
@@ -230,7 +230,7 @@ class INET_API MemoryOutputStream
      */
     void writeUint2(uint8_t value) {
         assert(value <= 0x03u);
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset == 0)
             data.push_back(value << 6);
         else if (bitOffset == 7) {
@@ -239,7 +239,7 @@ class INET_API MemoryOutputStream
         }
         else
             data.back() |= (value & 0x03) << (6 - bitOffset);
-        length += b(2);
+        dataLength += b(2);
     }
 
     /**
@@ -248,7 +248,7 @@ class INET_API MemoryOutputStream
      */
     void writeUint4(uint8_t value) {
         assert(value <= 0x0fu);
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset == 0)
             data.push_back(value << 4);
         else if (bitOffset > 4) {
@@ -257,7 +257,7 @@ class INET_API MemoryOutputStream
         }
         else
             data.back() |= (value & 0x0F) << (4 - bitOffset);
-        length += b(4);
+        dataLength += b(4);
     }
 
     /**
@@ -273,14 +273,14 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint16Be(uint16_t value) {
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset > 0) {
             data.back() |= static_cast<uint8_t>(value >> (8 + bitOffset));
             value <<= (8 - bitOffset);
         }
         data.push_back(static_cast<uint8_t>(value >> 8));
         data.push_back(static_cast<uint8_t>(value));
-        length += B(2);
+        dataLength += B(2);
     }
 
     /**
@@ -298,7 +298,7 @@ class INET_API MemoryOutputStream
      */
     void writeUint24Be(uint32_t value) {
         assert(value <= 0x00fffffflu);
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset > 0) {
             data.back() |= static_cast<uint8_t>(value >> (16 + bitOffset));
             value <<= (8 - bitOffset);
@@ -306,7 +306,7 @@ class INET_API MemoryOutputStream
         data.push_back(static_cast<uint8_t>(value >> 16));
         data.push_back(static_cast<uint8_t>(value >> 8));
         data.push_back(static_cast<uint8_t>(value));
-        length += B(3);
+        dataLength += B(3);
     }
 
     /**
@@ -325,7 +325,7 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint32Be(uint32_t value) {
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset > 0) {
             data.back() |= static_cast<uint8_t>(value >> (24 + bitOffset));
             value <<= (8 - bitOffset);
@@ -334,7 +334,7 @@ class INET_API MemoryOutputStream
         data.push_back(static_cast<uint8_t>(value >> 16));
         data.push_back(static_cast<uint8_t>(value >> 8));
         data.push_back(static_cast<uint8_t>(value));
-        length += B(4);
+        dataLength += B(4);
     }
 
     /**
@@ -354,7 +354,7 @@ class INET_API MemoryOutputStream
      */
     void writeUint48Be(uint64_t value) {
         assert(value <= ((uint64_t)1u << 48));
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset > 0) {
             data.back() |= static_cast<uint8_t>(value >> (40 + bitOffset));
             value <<= (8 - bitOffset);
@@ -365,7 +365,7 @@ class INET_API MemoryOutputStream
         data.push_back(static_cast<uint8_t>(value >> 16));
         data.push_back(static_cast<uint8_t>(value >> 8));
         data.push_back(static_cast<uint8_t>(value));
-        length += B(6);
+        dataLength += B(6);
     }
 
     /**
@@ -387,7 +387,7 @@ class INET_API MemoryOutputStream
      * byte order and MSB to LSB bit order.
      */
     void writeUint64Be(uint64_t value) {
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         if (bitOffset > 0) {
             data.back() |= static_cast<uint8_t>(value >> (56 + bitOffset));
             value <<= (8 - bitOffset);
@@ -400,7 +400,7 @@ class INET_API MemoryOutputStream
         data.push_back(static_cast<uint8_t>(value >> 16));
         data.push_back(static_cast<uint8_t>(value >> 8));
         data.push_back(static_cast<uint8_t>(value));
-        length += B(8);
+        dataLength += B(8);
     }
 
     /**
@@ -469,7 +469,7 @@ class INET_API MemoryOutputStream
                 throw cRuntimeError("value larger than %d bits.", (int)n);
             value <<= (64-n);
         }
-        uint8_t bitOffset = b(length).get() & 7;
+        uint8_t bitOffset = b(dataLength).get() & 7;
         uint8_t out = 0;
         if (bitOffset != 0) {
             data.back() |= static_cast<uint8_t>(value >> (56 + bitOffset));
@@ -479,7 +479,7 @@ class INET_API MemoryOutputStream
             data.push_back(static_cast<uint8_t>(value >> (56 - out)));
         if (out < n)
             data.push_back(static_cast<uint8_t>(value << (8 - (n - out))));
-        length += b(n);
+        dataLength += b(n);
     }
     //@}
 };
