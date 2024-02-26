@@ -195,14 +195,7 @@ class INET_API MemoryOutputStream
         ASSERT(b(0) <= offset && offset <= B(bytes.size()));
         ASSERT(b(0) <= end && end <= B(bytes.size()));
         ASSERT(offset <= end);
-        if (isByteAligned()) {
-            data.insert(data.end(), bytes.begin() + B(offset).get(), bytes.begin() + B(end).get());
-            this->length += end - offset;
-        }
-        else {
-            for (B::value_type i = B(offset).get(); i < B(end).get(); i++)
-                writeByte(bytes.at(i));
-        }
+        writeBytes(bytes.data() + B(offset).get(), end - offset);
     }
 
     /**
@@ -210,14 +203,21 @@ class INET_API MemoryOutputStream
      * byte order and in MSB to LSB bit order.
      */
     void writeBytes(const uint8_t *buffer, B length) {
-        if (isByteAligned()) {
+        if (length == B(0))
+            return;
+        ASSERT(length > B(0));
+        uint8_t bitOffset = b(this->length).get() & 7;
+        if (bitOffset == 0) {
             data.insert(data.end(), buffer, buffer + B(length).get());
-            this->length += length;
         }
         else {
-            for (B::value_type i = 0; i < B(length).get(); i++)
-                writeByte(buffer[i]);
+            size_t end = B(length).get() - 1;
+            data.back() |= buffer[0] >> bitOffset;
+            for (size_t i = 0; i < end; i++)
+                data.push_back(buffer[i] << (8 - bitOffset) | buffer[i+1] >> bitOffset);
+            data.push_back(buffer[end] << (8 - bitOffset));
         }
+        this->length += length;
     }
     //@}
 
