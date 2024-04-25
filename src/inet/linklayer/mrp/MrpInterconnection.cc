@@ -23,6 +23,8 @@ Register_Enum(MrpInterconnection::InterconnectionRole, (MrpInterconnection::INTE
 Register_Enum(MrpInterconnection::InterconnectionNodeState, (MrpInterconnection::POWER_ON, MrpInterconnection::AC_STAT1, MrpInterconnection::CHK_IO, MrpInterconnection::CHK_IC, MrpInterconnection::PT, MrpInterconnection::IP_IDLE));
 Register_Enum(MrpInterconnection::InterconnectionTopologyState, (MrpInterconnection::OPEN, MrpInterconnection::CLOSED));
 
+//TODO what are these "double time" arguments in methods?
+
 Define_Module(MrpInterconnection);
 
 MrpInterconnection::MrpInterconnection() {
@@ -722,7 +724,7 @@ void MrpInterconnection::interconnTestReq(simtime_t time) {
         scheduleAfter(time, inLinkTestTimer);
         setupInterconnTestReq();
     } else
-        EV_DETAIL << "inTest already scheduled" << EV_ENDL;
+        EV_DETAIL << "inTest already scheduled" << EV_ENDL;  //TODO error instead?
 }
 
 void MrpInterconnection::setupInterconnTestReq() {

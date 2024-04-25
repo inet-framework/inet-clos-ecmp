@@ -28,6 +28,7 @@ inline simtime_t trunc_msec(simtime_t t) { return t.trunc(SIMTIME_MS); }
 /**
  * Implements the base part of the MRP protocol, i.e. roles MRC, MRM and MRA.
  */
+// note: a good guide to the protocol: https://is5com.com/CM-MRP-iBiome-1.15.04-1-EN/HTML5/index.html
 class INET_API Mrp: public OperationalBase, public cListener, public StringFormat::IDirectiveResolver {
 public:
     enum FrameType : uint64_t {
@@ -118,7 +119,7 @@ protected:
 
     //Variables need for Manager
     bool addTest = false;
-    bool nonblockingMrcSupported = true;  // "Non-blocking MRC supported"
+    bool nonblockingMrcSupported = true;  // "Non-blocking MRC supported" -- TODO not sure this switch makes sense without adding an option to turn off BLOCKING support in MRCs
     bool reactOnLinkChange = true;
     bool noTopologyChange = false;  // NO_TC variable
     MrpPriority localManagerPrio = DEFAULT;
@@ -151,7 +152,7 @@ protected:
     cMessage *fdbClearTimer = nullptr;
     cMessage *fdbClearDelay = nullptr;
     cMessage *topologyChangeTimer = nullptr;
-    cMessage *testTimer = nullptr;
+    cMessage *testTimer = nullptr;  //TODO suspicious - how is it first scheduled ?
     cMessage *startUpTimer = nullptr;
 
     opp_component_ptr<cModule> switchModule;
@@ -203,6 +204,7 @@ protected:
     virtual void handleLinkUpTimer();
     virtual void handleLinkDownTimer();
     virtual void handleContinuityCheckTimer(int ringPort);
+    // many of the function names (and their content) below come from "8.2.4 MRA, MRM and MRC functions" of the IEC 62439 spec
     virtual void setupTestRingReq();
     virtual void setupTopologyChangeReq(simtime_t interval);
     virtual void setupContinuityCheck(int ringPort);

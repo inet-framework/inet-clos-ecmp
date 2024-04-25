@@ -10,6 +10,7 @@ package inet.linklayer.contract;
 //
 // Module interface for MediaRedundancyNodes
 //
+//TODO rename this too!
 moduleinterface IMediaRedundancy
 {
     parameters:

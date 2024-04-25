@@ -76,7 +76,7 @@ simple Mrp like IMediaRedundancy
         // Switches do not detect a link change immediately. This parameter sets
         // the simulated delay of a "link down" event. Note: the delay for "link
         // up" is hardcoded to 1us in the code.
-        volatile double linkDetectionDelay @unit(s) = default(truncnormal(385ms,325ms));
+        volatile double linkDetectionDelay @unit(s) = default(truncnormal(385ms,325ms)); //TODO split to 2 parameters
 
         // Switches require a certain amount of time to process each received packet.
         // This parameter sets the processing delay; it is applied in handleMessageWhenUp().
@@ -86,7 +86,7 @@ simple Mrp like IMediaRedundancy
         // This parameter sets a hard upper time limit guaranteed by the protocol,
         // and the interval for test frames, topology changes, and link change times are adapted accordingly.
         // It should be set to the same value on all nodes within a ring.
-        int timingProfile @unit(ms) = default(500ms);
+        int timingProfile @unit(ms) = default(500ms);   //TODO rename + use unit(s)?
 
         // Each MRP node can either be disabled (value 0, no MRP function), be a MediaRedundancyClient (MRC, value 1),
         // a MediaRedundancyManager (MRM, value 2), or a MediaRedundancyAutoManager (MRA, value 4).
@@ -154,6 +154,8 @@ simple Mrp like IMediaRedundancy
         // Directives: `%r`: MRP role, `%n`: node state, `%g`: ring state
         string displayStringTextFormat = default("role: %r\nnode: %n\nring: %g");
 
+        //TODO maybe statistics like numTestFramesSent/Received, numLinkChangesReceived, etc
+        //TODO role!
         @display("i=block/network2");
         @signal[ringStateChanged](type=long);
         @signal[nodeStateChanged](type=long);
