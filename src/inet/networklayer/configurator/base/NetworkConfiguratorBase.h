@@ -17,6 +17,7 @@ namespace inet {
 
 class INET_API NetworkConfiguratorBase : public cSimpleModule
 {
+  friend class TopologyECMP;
   protected:
     class Interface;
 

@@ -58,6 +58,7 @@ class INET_API Topology : public cOwnedObject
      */
     class INET_API Node {
         friend class Topology;
+        friend class TopologyECMP;
 
       protected:
         int moduleId;
@@ -205,6 +206,7 @@ class INET_API Topology : public cOwnedObject
      */
     class INET_API Link {
         friend class Topology;
+        friend class TopologyECMP;
 
       protected:
         Node *srcNode;
@@ -550,7 +552,7 @@ class INET_API Topology : public cOwnedObject
      * graph node. The paths found can be extracted via Node's methods.
      * Uses weights in nodes and links.
      */
-    void calculateWeightedSingleShortestPathsTo(Node *target) const;
+    virtual void calculateWeightedSingleShortestPathsTo(Node *target) const;
     //@}
 
   protected:

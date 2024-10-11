@@ -1,59 +1,10 @@
-[![badge 1][badge-1]][1] [![badge 2][badge-2]][2]
+In this file, we will explain how to obtain the same results that were used in the Bachelor's thesis because, due to the size of the fileS, containing the raw data from the simulations being too big (around 50 GB), they were deleted.
 
-INET Framework for OMNEST/OMNeT++
-=================================
+The first step is to install OMNeT++ 6.0.1. To do this, we can follow the official installation guide that can be found here: https://doc.omnetpp.org/omnetpp/InstallGuide.pdf
 
-The [INET framework](https://inet.omnetpp.org) is an open-source communication networks
-simulation package, written for the OMNEST/OMNeT++ simulation system. The INET
-framework contains models for numerous wired and wireless protocols, a detailed
-physical layer model, application models and more. See the CREDITS file for the
-names of people who have contributed to the INET Framework.
+Next step is to import the inet4.4 project to OMNeT.
 
-IMPORTANT: The INET Framework is continuously being improved: new parts
-are added, bugs are corrected, and so on. We cannot assert that any protocol
-implemented here will work fully according to the specifications. YOU ARE
-RESPONSIBLE YOURSELF FOR MAKING SURE THAT THE MODELS YOU USE IN YOUR SIMULATIONS
-WORK CORRECTLY, AND YOU'RE GETTING VALID RESULTS.
+Once this is done, the last thing is to compile INET and run the simulations that can be found in the folder inet4.4/examples/ecmp. The Clos network is inside the ClosExample folder, the Fat-Tree is inside the FatTreExample folder, and the Dragonfly is inside the MegaFlyExmaple folder.
+*It is recommended to run the simulations using Cmdenv and multiple threads if possible.*
 
-Contributions are highly welcome. You can make a difference!
-
-See the WHATSNEW file for recent changes.
-
-
-GETTING STARTED
----------------
-You may start by downloading and installing the INET framework. Read the INSTALL
-file for further information.
-
-Then you can gather initial experience by starting some examples or following a
-tutorial or showcase (see the /examples, /showcases or /tutorials folder).
-After that, you can learn the NED language from the OMNeT++ manual & sample
-simulations.
-
-After that, you may write your own topologies using the NED language. You may
-assign some of the submodule parameters in NED files. You may leave some of
-them unassigned.
-
-Then, you may assign unassigned module parameters in omnetpp.ini of your
-simulation. (You can refer to sample simulations & manual for the content of
-omnetpp.ini)
-
-Finally, you will be ready to run your simulation. As you see, you may use
-the INET framework without writing any C++ code, as long as you use the
-available modules.
-
-To implement new protocols or modify existing ones, you'll need to add your
-code somewhere under the src directory. If you add new files under the 'src'
-directory you will need to regenerate the makefiles (using the 'make makefiles'
-command).
-
-If you want to use external interfaces in INET, enable the "Emulation" feature
-either in the IDE or using the inet_featuretool then regenerate the INET makefile
-using 'make makefiles'.
-
-
-[badge-1]: https://github.com/inet-framework/inet/workflows/Build%20and%20tests/badge.svg?branch=master
-[badge-2]: https://github.com/inet-framework/inet/workflows/Feature%20tests/badge.svg?branch=master
-
-[1]: https://github.com/inet-framework/inet/actions?query=workflow%3A%22Build+and+tests%22
-[2]: https://github.com/inet-framework/inet/actions?query=workflow%3A%22Feature+tests%22
+Inside these folders, the anf files are configured to automatically import the results of the simulations and to generate all the graphics that have been used in the thesis document.
